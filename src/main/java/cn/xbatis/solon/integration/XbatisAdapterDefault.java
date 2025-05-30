@@ -46,6 +46,6 @@ public class XbatisAdapterDefault extends MybatisAdapterDefault {
         if (cfgProps.size() > 0) {
             Utils.injectProperties(this.config, cfgProps);
         }
-        configuration.printBanner();
+        configuration.onInit();
     }
 }
