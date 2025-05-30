@@ -20,15 +20,15 @@
     <parent>
         <groupId>cn.xbatis</groupId>
         <artifactId>xbatis</artifactId>
-        <version>1.8.8-M1</version>
+        <version>1.8.8-M2</version>
         <relativePath/>
     </parent>
     <url>https://gitee.com/xbatis/xbatis-solon-plugin</url>
     <description>
         xbatis 之 solon 容器 启动插件
     </description>
-
     <artifactId>xbatis-solon-plugin</artifactId>
+    <name>xbatis-solon-plugin</name>
 
     <issueManagement>
         <system>Gitee Issue</system>
