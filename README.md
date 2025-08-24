@@ -38,13 +38,13 @@
 <dependency>
     <groupId>cn.xbatis</groupId>
     <artifactId>xbatis-solon-plugin</artifactId>
-    <version>1.9.1-M1</version>
+    <version>1.9.1-M2</version>
 </dependency>
 
 <dependency>
     <groupId>org.noear</groupId>
     <artifactId>mybatis-solon-plugin</artifactId>
-    <version>3.0.3</version>
+    <version>3.5.0</version>
 </dependency>
 ```
 >xbatis-solon-plugin 是 xbatis针对solon 提供的插件
