@@ -59,7 +59,7 @@
     </developers>
 
     <properties>
-        <solon.version>3.5.2</solon.version>
+        <solon.version>3.5.4</solon.version>
     </properties>
 
     <dependencyManagement>
