@@ -51,8 +51,6 @@ public class XbatisAdapterDefault extends MybatisAdapterDefault {
         super(dsWrap, dsProps);
     }
 
-    private boolean hasCheckBasePackages = false;
-
     @Override
     protected void initConfiguration(Environment environment) {
         MybatisConfiguration configuration = new MybatisConfiguration(environment);
@@ -70,54 +68,76 @@ public class XbatisAdapterDefault extends MybatisAdapterDefault {
         if (checkMap == null || checkMap.isEmpty()) {
             return;
         }
+
         String basePackages = checkMap.get("basePackages");
         String modelPackages = checkMap.get("modelPackages");
         String resultEntityPackages = checkMap.get("resultEntityPackages");
         String conditionTargetPackages = checkMap.get("conditionTargetPackages");
         String orderByTargetPackages = checkMap.get("orderByTargetPackages");
 
-        Consumer<Class> execution = getPojoCheckerFunction();
+        PojoCheckInfo pojoCheckInfo = new PojoCheckInfo();
+        pojoCheckInfo.setCheckModel(modelPackages != null && !modelPackages.isEmpty());
+        pojoCheckInfo.setCheckResultEntity(resultEntityPackages != null && !resultEntityPackages.isEmpty());
+        pojoCheckInfo.setCheckConditionTarget(conditionTargetPackages != null && !conditionTargetPackages.isEmpty());
+        pojoCheckInfo.setCheckOrderTarget(orderByTargetPackages != null && !orderByTargetPackages.isEmpty());
 
-        this.executeCheckPackages(basePackages, modelPackages, execution);
-        this.executeCheckPackages(basePackages, resultEntityPackages, execution);
-        this.executeCheckPackages(basePackages, conditionTargetPackages, execution);
-        this.executeCheckPackages(basePackages, orderByTargetPackages, execution);
+        //假如单独配置了 则使用单独配置的
+        if (pojoCheckInfo.isCheckModel()) {
+            PojoCheckInfo checkInfo = new PojoCheckInfo();
+            checkInfo.setCheckModel(true);
+            this.executeCheckPackages(modelPackages, getPojoCheckerFunction(checkInfo));
+        }
+        if (pojoCheckInfo.isCheckResultEntity()) {
+            PojoCheckInfo checkInfo = new PojoCheckInfo();
+            checkInfo.setCheckResultEntity(true);
+            this.executeCheckPackages(resultEntityPackages, getPojoCheckerFunction(checkInfo));
+        }
+        if (pojoCheckInfo.isCheckConditionTarget()) {
+            PojoCheckInfo checkInfo = new PojoCheckInfo();
+            checkInfo.setCheckConditionTarget(true);
+            this.executeCheckPackages(conditionTargetPackages, getPojoCheckerFunction(checkInfo));
+        }
+        if (pojoCheckInfo.isCheckOrderTarget()) {
+            PojoCheckInfo checkInfo = new PojoCheckInfo();
+            checkInfo.setCheckOrderTarget(true);
+            this.executeCheckPackages(orderByTargetPackages, getPojoCheckerFunction(checkInfo));
+        }
+
+        //假如其中一个没有配置
+        if (!pojoCheckInfo.isCheckModel() || !pojoCheckInfo.isCheckResultEntity() || !pojoCheckInfo.isCheckConditionTarget() || !pojoCheckInfo.isCheckOrderTarget()) {
+            if (basePackages == null || basePackages.isEmpty()) {
+                return;
+            }
+            //以basePackages为准
+            pojoCheckInfo.setCheckModel(!pojoCheckInfo.isCheckModel());
+            pojoCheckInfo.setCheckResultEntity(!pojoCheckInfo.isCheckResultEntity());
+            pojoCheckInfo.setCheckConditionTarget(!pojoCheckInfo.isCheckConditionTarget());
+            pojoCheckInfo.setCheckOrderTarget(!pojoCheckInfo.isCheckOrderTarget());
+            this.executeCheckPackages(basePackages, getPojoCheckerFunction(pojoCheckInfo));
+        }
     }
 
-    protected Consumer<Class> getPojoCheckerFunction() {
+    protected Consumer<Class> getPojoCheckerFunction(PojoCheckInfo basePojoCheckInfo) {
         return clazz -> {
-            if (Model.class.isAssignableFrom(clazz)) {
+            if (basePojoCheckInfo.isCheckModel() && Model.class.isAssignableFrom(clazz)) {
                 Models.get(clazz);
-            } else if (clazz.isAnnotationPresent(ResultEntity.class)) {
+            } else if (basePojoCheckInfo.isCheckResultEntity() && clazz.isAnnotationPresent(ResultEntity.class)) {
                 ResultInfos.get(clazz);
-            } else if (clazz.isAnnotationPresent(ConditionTarget.class)) {
+            } else if (basePojoCheckInfo.isCheckConditionTarget() && clazz.isAnnotationPresent(ConditionTarget.class)) {
                 Conditions.get(clazz);
-            } else if (clazz.isAnnotationPresent(OrderByTarget.class)) {
+            } else if (basePojoCheckInfo.isCheckOrderTarget() && clazz.isAnnotationPresent(OrderByTarget.class)) {
                 OrderBys.get(clazz);
             }
         };
     }
 
-    protected void executeCheckPackages(String basePackages, String targetPackages, Consumer<Class> execution) {
-        String packages;
+    protected void executeCheckPackages(String targetPackages, Consumer<Class> execution) {
         if (targetPackages == null || targetPackages.isEmpty()) {
-            packages = basePackages;
-        } else if (hasCheckBasePackages) {
-            return;
-        } else {
-            packages = targetPackages;
-        }
-
-        if (packages == null || packages.isEmpty()) {
             return;
         }
-        Arrays.stream(basePackages.split(",")).forEach(basePackage -> {
+        Arrays.stream(targetPackages.split(",")).forEach(basePackage -> {
             ResourceUtil.scanClasses(basePackage).stream().forEach(execution);
         });
-
-        if (targetPackages == null || targetPackages.isEmpty()) {
-            hasCheckBasePackages = true;
-        }
     }
 
 }
