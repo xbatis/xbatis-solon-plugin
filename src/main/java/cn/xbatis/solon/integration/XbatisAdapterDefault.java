@@ -117,15 +117,15 @@ public class XbatisAdapterDefault extends MybatisAdapterDefault {
         }
     }
 
-    protected Consumer<Class> getPojoCheckerFunction(PojoCheckInfo basePojoCheckInfo) {
+    protected Consumer<Class> getPojoCheckerFunction(PojoCheckInfo pojoCheckInfo) {
         return clazz -> {
-            if (basePojoCheckInfo.isCheckModel() && Model.class.isAssignableFrom(clazz)) {
+            if (pojoCheckInfo.isCheckModel() && Model.class.isAssignableFrom(clazz)) {
                 Models.get(clazz);
-            } else if (basePojoCheckInfo.isCheckResultEntity() && clazz.isAnnotationPresent(ResultEntity.class)) {
+            } else if (pojoCheckInfo.isCheckResultEntity() && clazz.isAnnotationPresent(ResultEntity.class)) {
                 ResultInfos.get(clazz);
-            } else if (basePojoCheckInfo.isCheckConditionTarget() && clazz.isAnnotationPresent(ConditionTarget.class)) {
+            } else if (pojoCheckInfo.isCheckConditionTarget() && clazz.isAnnotationPresent(ConditionTarget.class)) {
                 Conditions.get(clazz);
-            } else if (basePojoCheckInfo.isCheckOrderTarget() && clazz.isAnnotationPresent(OrderByTarget.class)) {
+            } else if (pojoCheckInfo.isCheckOrderTarget() && clazz.isAnnotationPresent(OrderByTarget.class)) {
                 OrderBys.get(clazz);
             }
         };
