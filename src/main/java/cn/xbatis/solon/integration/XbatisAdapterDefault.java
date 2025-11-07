@@ -28,7 +28,7 @@ import org.apache.ibatis.solon.integration.MybatisAdapterDefault;
 import org.noear.solon.Utils;
 import org.noear.solon.core.BeanWrap;
 import org.noear.solon.core.Props;
-import org.noear.solon.core.util.ResourceUtil;
+import org.noear.solon.core.util.ClassUtil;
 
 import java.util.Arrays;
 import java.util.Map;
@@ -117,7 +117,7 @@ public class XbatisAdapterDefault extends MybatisAdapterDefault {
         }
     }
 
-    protected Consumer<Class> getPojoCheckerFunction(PojoCheckInfo pojoCheckInfo) {
+    protected Consumer<Class<?>> getPojoCheckerFunction(PojoCheckInfo pojoCheckInfo) {
         return clazz -> {
             if (pojoCheckInfo.isCheckModel() && Model.class.isAssignableFrom(clazz)) {
                 Models.get(clazz);
@@ -131,12 +131,12 @@ public class XbatisAdapterDefault extends MybatisAdapterDefault {
         };
     }
 
-    protected void executeCheckPackages(String targetPackages, Consumer<Class> execution) {
+    protected void executeCheckPackages(String targetPackages, Consumer<Class<?>> execution) {
         if (targetPackages == null || targetPackages.isEmpty()) {
             return;
         }
         Arrays.stream(targetPackages.split(",")).forEach(basePackage -> {
-            ResourceUtil.scanClasses(basePackage).stream().forEach(execution);
+            ClassUtil.scanClasses(basePackage).stream().forEach(execution);
         });
     }
 
