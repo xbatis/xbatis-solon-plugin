@@ -38,7 +38,7 @@
 <dependency>
     <groupId>cn.xbatis</groupId>
     <artifactId>xbatis-solon-plugin</artifactId>
-    <version>1.9.2-RC2</version>
+    <version>1.9.2-RC3</version>
 </dependency>
 
 <dependency>
@@ -70,7 +70,7 @@ mybatis.master:
     - "classpath:demo4021/**/mapping/*.xml"   
 
 ```
-## 2.3 DataSource Bean配置
+## 2.3 DataSource Bean配置（数据源配置和xbatis关系不大，参看[solon官网的数据源配置](https://solon.noear.org/article/794)即可）
 ```java
 @Configuration
 public class MybatisConfig {
