@@ -120,10 +120,30 @@ public class DemoController {
 }
 ```
 
-# 3.更多使用xbatis的使用说明
+# 3.solon 容器下的启动时安全检查配置(yml配置,开发环境推荐必填)
+```yaml
+mybatis.db1:
+    pojoCheck:
+      basePackages: com.example.**.po
+    mappers:
+    - "com.**.mapper.TestMapper"
+```
+> pojoCheck 下配置 basePackages、modelPackages、resultEntityPackages、conditionTargetPackages、orderByTargetPackages
+
+## 3.1 pojoCheck下属性说明
+
+| 属性名                     | 说明                                    |
+|-------------------------|---------------------------------------|
+| basePackages            | 基础包路径                                 |
+| modelPackages           | Model类的包扫描路径；如果没填，则使用basePackages的路径  |
+| resultEntityPackages    | VO类的包扫描路径；如果没填，则使用basePackages的路径     |
+| conditionTargetPackages | 对象转条件的类的包扫描路径；如果没填，则使用basePackages的路径 |
+| orderByTargetPackages   | 对象转排序的类的包扫描路径；如果没填，则使用basePackages的路径 |
+
+# 4.更多使用xbatis的使用说明
 请前往xbatis 查看：https://gitee.com/xbatis
 
-# 4.更多配置说明
+# 5.更多配置说明
 配置和 solon mybatis-solon-plugin 配置是一样的：https://solon.noear.org/article/20
 
  
