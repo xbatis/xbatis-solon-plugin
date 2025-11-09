@@ -20,7 +20,7 @@
     <parent>
         <groupId>cn.xbatis</groupId>
         <artifactId>xbatis</artifactId>
-        <version>1.9.2-RC3</version>
+        <version>1.9.2-M1</version>
         <relativePath/>
     </parent>
     <url>https://gitee.com/xbatis/xbatis-solon-plugin</url>
@@ -75,12 +75,6 @@
                     </exclusion>
                 </exclusions>
             </dependency>
-
-            <dependency>
-                <groupId>org.noear</groupId>
-                <artifactId>solon</artifactId>
-                <version>${solon.version}</version>
-            </dependency>
         </dependencies>
     </dependencyManagement>
 
@@ -93,12 +87,6 @@
         <dependency>
             <groupId>org.noear</groupId>
             <artifactId>mybatis-solon-plugin</artifactId>
-            <optional>true</optional>
-        </dependency>
-
-        <dependency>
-            <groupId>org.noear</groupId>
-            <artifactId>solon</artifactId>
             <optional>true</optional>
         </dependency>
     </dependencies>
