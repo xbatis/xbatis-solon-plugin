@@ -20,7 +20,7 @@
     <parent>
         <groupId>cn.xbatis</groupId>
         <artifactId>xbatis</artifactId>
-        <version>1.9.5-M2</version>
+        <version>1.9.5-M3</version>
         <relativePath/>
     </parent>
     <url>https://gitee.com/xbatis/xbatis-solon-plugin</url>
@@ -59,8 +59,8 @@
     </developers>
 
     <properties>
-        <xbatis.version>1.9.5-M2</xbatis.version>
-        <solon.version>3.7.3</solon.version>
+        <xbatis.version>1.9.5-M3</xbatis.version>
+        <solon.version>3.8.0</solon.version>
     </properties>
 
     <dependencyManagement>
