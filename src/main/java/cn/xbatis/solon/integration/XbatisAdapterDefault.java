@@ -79,7 +79,7 @@ public class XbatisAdapterDefault extends MybatisAdapterDefault {
     }
 
     protected void autoDDL() {
-        Props ddlAutosProps = this.dsProps.getProp("ddlAutos");
+        Props ddlAutosProps = this.dsProps.getProp("ddlAuto");
         if (ddlAutosProps.size() < 1) {
             return;
         }
@@ -89,13 +89,13 @@ public class XbatisAdapterDefault extends MybatisAdapterDefault {
         DataSource primary = getDataSource();
         for (XbatisDDLAutoItem item : ddlAutos) {
             if (item.getEntityPackages() == null || item.getEntityPackages().isEmpty()) {
-                throw new RuntimeException("mybatis." + dsWrap.name() + ".ddlAutos.entityPackages 不能缺省");
-            }
-            if (item.getMode() == null) {
-                item.setMode(Mode.CREATE);
+                throw new RuntimeException("mybatis." + dsWrap.name() + ".ddlAuto.entityPackages 不能缺省");
             }
             if (item.getMode() == Mode.NONE) {
                 continue;
+            }
+            if (item.getMode() == null) {
+                item.setMode(Mode.CREATE);
             }
             DataSource ds;
             if (item.getDataSource() != null && !item.getDataSource().isEmpty()) {
@@ -143,8 +143,6 @@ public class XbatisAdapterDefault extends MybatisAdapterDefault {
                     .add(entities)
                     .execute(ds);
         }
-
-
     }
 
     protected void checkPojo() {
