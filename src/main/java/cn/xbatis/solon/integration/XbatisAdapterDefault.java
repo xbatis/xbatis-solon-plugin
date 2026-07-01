@@ -18,19 +18,32 @@ import cn.xbatis.core.db.reflect.Conditions;
 import cn.xbatis.core.db.reflect.Models;
 import cn.xbatis.core.db.reflect.OrderBys;
 import cn.xbatis.core.db.reflect.ResultInfos;
+import cn.xbatis.core.dbType.DbTypeUtil;
 import cn.xbatis.core.mybatis.configuration.MybatisConfiguration;
 import cn.xbatis.db.Model;
 import cn.xbatis.db.annotations.ConditionTarget;
 import cn.xbatis.db.annotations.OrderByTarget;
 import cn.xbatis.db.annotations.ResultEntity;
+import cn.xbatis.db.annotations.Table;
+import cn.xbatis.ddl.auto.DDLAuto;
+import cn.xbatis.ddl.auto.Mode;
+import db.sql.api.DbTypes;
+import db.sql.api.IDbType;
 import org.apache.ibatis.mapping.Environment;
 import org.apache.ibatis.solon.integration.MybatisAdapterDefault;
+import org.noear.solon.Solon;
 import org.noear.solon.Utils;
 import org.noear.solon.core.BeanWrap;
 import org.noear.solon.core.Props;
 import org.noear.solon.core.util.ClassUtil;
+import org.noear.solon.data.datasource.AbstractRoutingDataSource;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import javax.sql.DataSource;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
 
@@ -42,6 +55,7 @@ import java.util.function.Consumer;
  * @since 2.6.4
  */
 public class XbatisAdapterDefault extends MybatisAdapterDefault {
+    private static final Logger logger = LoggerFactory.getLogger(XbatisAdapterDefault.class);
 
     protected XbatisAdapterDefault(BeanWrap dsWrap) {
         super(dsWrap);
@@ -61,6 +75,76 @@ public class XbatisAdapterDefault extends MybatisAdapterDefault {
         }
         configuration.onInit();
         this.checkPojo();
+        this.autoDDL();
+    }
+
+    protected void autoDDL() {
+        Props ddlAutosProps = this.dsProps.getProp("ddlAutos");
+        if (ddlAutosProps.size() < 1) {
+            return;
+        }
+
+        List<XbatisDDLAutoItem> ddlAutos = PropsUtil.resolve(ddlAutosProps, XbatisDDLAutoItem.class);
+
+        DataSource primary = getDataSource();
+        for (XbatisDDLAutoItem item : ddlAutos) {
+            if (item.getEntityPackages() == null || item.getEntityPackages().isEmpty()) {
+                throw new RuntimeException("mybatis." + dsWrap.name() + ".ddlAutos.entityPackages 不能缺省");
+            }
+            if (item.getMode() == null) {
+                item.setMode(Mode.CREATE);
+            }
+            if (item.getMode() == Mode.NONE) {
+                continue;
+            }
+            DataSource ds;
+            if (item.getDataSource() != null && !item.getDataSource().isEmpty()) {
+                Map<String, DataSource> dataSourceMap = Solon.context().getBeansMapOfType(DataSource.class);
+                ds = dataSourceMap.get(item.getDataSource());
+                if (ds == null) {
+                    if (ds instanceof AbstractRoutingDataSource) {
+                        try {
+                            Map<String, DataSource> targetDataSources = (Map<String, DataSource>) AbstractRoutingDataSource.class.getDeclaredField("targetDataSources").get(ds);
+                            ds = targetDataSources.get(item.getDataSource());
+                        } catch (Exception e) {
+                            throw new RuntimeException(e);
+                        }
+                    }
+                }
+                if (ds == null) {
+                    throw new RuntimeException("找不到 dataSource beanName:" + item.getDataSource());
+                }
+            } else {
+                ds = primary;
+                if (ds == null) {
+                    throw new RuntimeException("找不到可用的dataSource bean");
+                }
+            }
+
+            String entityPackages = item.getEntityPackages() == null ? "" : item.getEntityPackages();
+            final List<Class<?>> entities = new ArrayList<>();
+            Arrays.stream(entityPackages.split(",")).forEach(basePackage -> {
+                ClassUtil.scanClasses(basePackage, i -> {
+                    if (item.getMakerInterface() != null && !item.getMakerInterface().isAssignableFrom(i)) {
+                        return;
+                    }
+                    if (!i.isAnnotationPresent(Table.class)) {
+                        return;
+                    }
+                    entities.add(i);
+                });
+            });
+
+            logger.info("扫描到{}个需要DDL的实体类 扫描目录：{}", entities.size(), entityPackages);
+
+            IDbType dbType = item.getDbType() == null || item.getDbType().isEmpty() ? DbTypeUtil.getDbType(ds) : DbTypes.getByName(item.getDbType());
+
+            DDLAuto.of(dbType)
+                    .add(entities)
+                    .execute(ds);
+        }
+
+
     }
 
     protected void checkPojo() {
@@ -136,8 +220,7 @@ public class XbatisAdapterDefault extends MybatisAdapterDefault {
             return;
         }
         Arrays.stream(targetPackages.split(",")).forEach(basePackage -> {
-            ClassUtil.scanClasses(basePackage).stream().forEach(execution);
+            ClassUtil.scanClasses(basePackage, execution);
         });
     }
-
 }
