@@ -73,7 +73,6 @@
         <dependency>
             <groupId>cn.xbatis</groupId>
             <artifactId>xbatis-ddl-auto</artifactId>
-            <version>${xbatis-ddl-auto.version}</version>
             <optional>true</optional>
         </dependency>
     </dependencies>

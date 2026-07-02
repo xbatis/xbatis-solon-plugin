@@ -35,6 +35,7 @@ import org.noear.solon.Solon;
 import org.noear.solon.Utils;
 import org.noear.solon.core.BeanWrap;
 import org.noear.solon.core.Props;
+import org.noear.solon.core.event.EventBus;
 import org.noear.solon.core.util.ClassUtil;
 import org.noear.solon.data.datasource.AbstractRoutingDataSource;
 import org.slf4j.Logger;
@@ -143,6 +144,8 @@ public class XbatisAdapterDefault extends MybatisAdapterDefault {
                     .add(entities)
                     .execute(ds);
         }
+        logger.info("Xbatis DDL Auto 全部完成，发送 XbatisDDLAutoCompleteEvent 事件");
+        EventBus.publish(new XbatisDDLAutoCompleteEvent());
     }
 
     protected void checkPojo() {
