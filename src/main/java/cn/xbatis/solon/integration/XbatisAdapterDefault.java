@@ -141,6 +141,7 @@ public class XbatisAdapterDefault extends MybatisAdapterDefault {
             IDbType dbType = item.getDbType() == null || item.getDbType().isEmpty() ? DbTypeUtil.getDbType(ds) : DbTypes.getByName(item.getDbType());
 
             DDLAuto.of(dbType)
+                    .mode(item.getMode())
                     .add(entities)
                     .execute(ds);
         }
