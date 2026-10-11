@@ -38,7 +38,7 @@
 <dependency>
     <groupId>cn.xbatis</groupId>
     <artifactId>xbatis-solon-plugin</artifactId>
-    <version>1.10.10</version>
+    <version>1.10.11</version>
 </dependency>
 
 <dependency>
