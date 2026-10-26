@@ -102,7 +102,7 @@ public class XbatisAdapterDefault extends MybatisAdapterDefault {
             if (item.getDataSource() != null && !item.getDataSource().isEmpty()) {
                 Map<String, DataSource> dataSourceMap = Solon.context().getBeansMapOfType(DataSource.class);
                 ds = dataSourceMap.get(item.getDataSource());
-                if (ds == null) {
+                if (ds != null) {
                     if (ds instanceof AbstractRoutingDataSource) {
                         try {
                             Map<String, DataSource> targetDataSources = (Map<String, DataSource>) AbstractRoutingDataSource.class.getDeclaredField("targetDataSources").get(ds);
