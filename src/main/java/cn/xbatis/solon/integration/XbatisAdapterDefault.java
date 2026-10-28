@@ -93,11 +93,10 @@ public class XbatisAdapterDefault extends MybatisAdapterDefault {
             if (item.getEntityPackages() == null || item.getEntityPackages().isEmpty()) {
                 throw new RuntimeException("mybatis." + dsWrap.name() + ".ddlAuto.entityPackages 不能缺省");
             }
-            if (item.getMode() == Mode.NONE) {
-                continue;
-            }
             if (item.getMode() == null) {
                 item.setMode(Mode.CREATE);
+            } else if (item.getMode() == Mode.NONE) {
+                continue;
             }
             DataSource ds;
             if (item.getDataSource() != null && !item.getDataSource().isEmpty()) {
