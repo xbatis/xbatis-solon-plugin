@@ -42,6 +42,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.sql.DataSource;
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -102,18 +103,18 @@ public class XbatisAdapterDefault extends MybatisAdapterDefault {
             if (item.getDataSource() != null && !item.getDataSource().isEmpty()) {
                 Map<String, DataSource> dataSourceMap = Solon.context().getBeansMapOfType(DataSource.class);
                 ds = dataSourceMap.get(item.getDataSource());
-                if (ds != null) {
-                    if (ds instanceof AbstractRoutingDataSource) {
-                        try {
-                            Map<String, DataSource> targetDataSources = (Map<String, DataSource>) AbstractRoutingDataSource.class.getDeclaredField("targetDataSources").get(ds);
-                            ds = targetDataSources.get(item.getDataSource());
-                        } catch (Exception e) {
-                            throw new RuntimeException(e);
-                        }
-                    }
-                }
                 if (ds == null) {
                     throw new RuntimeException("找不到 dataSource beanName:" + item.getDataSource());
+                }
+                if (ds instanceof AbstractRoutingDataSource) {
+                    try {
+                        Field targetDataSourcesField = AbstractRoutingDataSource.class.getDeclaredField("targetDataSources");
+                        targetDataSourcesField.setAccessible(true);
+                        Map<String, DataSource> targetDataSources = (Map<String, DataSource>) targetDataSourcesField.get(ds);
+                        ds = targetDataSources.get(item.getDataSource());
+                    } catch (Exception e) {
+                        throw new RuntimeException(e);
+                    }
                 }
             } else {
                 ds = primary;
